@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' file:; style-src 'self' file: 'unsafe-inline'; img-src 'self' file: data:; connect-src 'none'; font-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#0d1a2e">
+<title>灯守の物語 ― 六人の視点で読むシリーズ</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="sky" aria-hidden="true">
+  <div class="beam"></div>
+  <div class="rain"></div>
+</div>
+
+<header id="topbar">
+  <button class="brand" id="btn-home" type="button" title="作品一覧へ">灯守の物語</button>
+  <nav class="tools">
+    <button type="button" id="btn-hub" class="tool">物語</button>
+    <button type="button" id="btn-files" class="tool">人物ファイル</button>
+    <button type="button" id="btn-notes" class="tool">手がかり帳<span id="note-count" class="badge"></span></button>
+    <button type="button" id="btn-settings" class="tool">設定</button>
+  </nav>
+</header>
+
+<main id="app" tabindex="-1"></main>
+
+<div id="overlay" class="overlay hidden" role="dialog" aria-modal="true">
+  <div class="sheet">
+    <button type="button" class="close" id="overlay-close" aria-label="閉じる">×</button>
+    <div id="overlay-body"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+<noscript><p class="noscript">この物語を読むには JavaScript を有効にしてください。</p></noscript>
+
+<script src="js/core.js"></script>
+<script src="js/data/characters.js"></script>
+<script src="js/data/s1a.js"></script>
+<script src="js/data/s1b.js"></script>
+<script src="js/data/s1c.js"></script>
+<script src="js/data/s2a.js"></script>
+<script src="js/data/s2b.js"></script>
+<script src="js/data/s2c.js"></script>
+<script src="js/data/s3a.js"></script>
+<script src="js/data/s3b.js"></script>
+<script src="js/data/s3c.js"></script>
+<script src="js/data/s4a.js"></script>
+<script src="js/data/s4b.js"></script>
+<script src="js/data/s4c.js"></script>
+<script src="js/data/finale.js"></script>
+<script src="js/data2/characters.js"></script>
+<script src="js/data2/s1a.js"></script>
+<script src="js/data2/s1b.js"></script>
+<script src="js/data2/s1c.js"></script>
+<script src="js/data2/s2a.js"></script>
+<script src="js/data2/s2b.js"></script>
+<script src="js/data2/s2c.js"></script>
+<script src="js/data2/s3a.js"></script>
+<script src="js/data2/s3b.js"></script>
+<script src="js/data2/s3c.js"></script>
+<script src="js/data2/s4a.js"></script>
+<script src="js/data2/s4b.js"></script>
+<script src="js/data2/s4c.js"></script>
+<script src="js/data2/finale.js"></script>
+<script src="js/games.js"></script>
+<script src="js/games-extra.js"></script>
+<script src="js/engine.js"></script>
+</body>
+</html>
