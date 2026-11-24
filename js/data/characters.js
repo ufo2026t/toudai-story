@@ -3,7 +3,10 @@
   'use strict';
 
   SERIES.begin('p1', {
-    part: '第一部',
+    part: '第二部',
+    epoch: '現在',
+    epochOrder: 2,
+    epochEra: '昭和の面影',
     title: '灯の還る夜',
     tagline: '帰らぬ舟にも、道しるべ。',
     era: '昭和の面影を残す、とある島',

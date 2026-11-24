@@ -108,7 +108,7 @@
   };
 
   /* ---------- 進行状況（ブラウザ内の localStorage のみに保存） ----------
-     作品ごとに別のキーで保存する。第一部のキーは公開当初のものをそのまま使う。 */
+     作品ごとに別のキーで保存する。『灯の還る夜』（p1）のキーは公開当初のものをそのまま使う。 */
   const KEYS = { p1: 'tomoshibi-no-kaeru-yoru-v1' };
   const SETTINGS_KEY = 'tomoshibi-settings-v1';
   const keyOf = id => KEYS[id] || ('tomoshibi-' + id + '-v1');

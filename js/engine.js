@@ -298,8 +298,14 @@
   </svg>`;
 
   /* ---------- 作品一覧（シリーズ） ---------- */
+  const THEMES = ['space', 'past'];
   function setTheme() {
-    document.body.classList.toggle('theme-space', !!(window.STORY && STORY.theme === 'space') && !document.body.classList.contains('in-library'));
+    const inLib = document.body.classList.contains('in-library');
+    THEMES.forEach(t => document.body.classList.toggle('theme-' + t, !inLib && !!window.STORY && STORY.theme === t));
+  }
+  /* 作品一覧は時代の古い順（過去・現在・未来）に並べる */
+  function byEpoch() {
+    return SERIES.order.slice().sort((a, b) => (SERIES.stories[a].epochOrder || 0) - (SERIES.stories[b].epochOrder || 0));
   }
   function setBrand(text) { document.getElementById('btn-home').textContent = text; }
 
@@ -320,17 +326,18 @@
 
   function library() {
     clearApp();
-    document.body.classList.remove('beam-off', 'calm', 'theme-space');
+    document.body.classList.remove('beam-off', 'calm', ...THEMES.map(t => 'theme-' + t));
     document.body.classList.add('in-library');
     setBrand(SERIES.title);
     document.getElementById('note-count').textContent = '';
+    const ids = byEpoch();
     const list = el('section', { class: 'library' });
-    SERIES.order.forEach(id => {
+    ids.forEach(id => {
       const s = SERIES.stories[id], p = storyProgress(id);
-      list.appendChild(el('article', { class: 'work' + (s.theme === 'space' ? ' space' : '') },
+      list.appendChild(el('article', { class: 'work' + (THEMES.includes(s.theme) ? ' ' + s.theme : '') },
         el('div', { class: 'work-cover', html: s.cover || LIGHTHOUSE }),
         el('div', { class: 'work-body' },
-          el('div', { class: 'work-part' }, s.part + '　' + (s.era || '')),
+          el('div', { class: 'work-part' }, s.epoch ? el('span', { class: 'work-epoch' }, s.epoch) : null, s.part + '　' + (s.era || '')),
           el('h2', null, s.title),
           el('p', { class: 'work-tag' }, s.tagline),
           el('p', { class: 'work-blurb', html: fmt(s.blurb || '') }),
@@ -341,10 +348,16 @@
           el('div', { class: 'btn-row', style: { justifyContent: 'flex-start' } },
             el('button', { class: 'btn', type: 'button', onclick: () => { openStory(id); title(); } }, p.started ? 'つづきを読む' : 'この作品を読む')))));
     });
+    const epochs = el('ol', { class: 'epoch-line', 'aria-label': '三つの時代' });
+    ids.forEach(id => {
+      const s = SERIES.stories[id];
+      epochs.appendChild(el('li', null, el('b', null, s.epoch || s.part), el('small', null, s.epochEra || s.era || ''), el('span', null, '『' + s.title + '』')));
+    });
     app.append(
       el('section', { class: 'library-head' },
         el('h1', null, SERIES.title),
-        el('p', null, '灯を守る者たちの、時代を越えた物語。それぞれの作品は、六人の視点から読み解く四つの幕と終章でできています。')),
+        el('p', null, '灯を守る者たちの、過去・現在・未来。三つの作品は、それぞれ六人の視点から読み解く四つの幕と終章でできています。'),
+        epochs),
       el('section', { class: 'library-style' },
         el('h2', null, '今夜の読み心地'),
         el('p', null, '読む気分に合わせて、表示スタイルを選べます。書体・行間・文章の現れ方・背景の演出は、右上の「設定」から。'),
@@ -360,7 +373,7 @@
     const started = State.d.started;
     const screen = el('section', { class: 'title-screen' },
       el('div', { html: STORY.cover || LIGHTHOUSE }),
-      el('div', { class: 'title-part' }, SERIES.title + '　' + (STORY.part || '')),
+      el('div', { class: 'title-part' }, SERIES.title + '　' + (STORY.part || '') + (STORY.epoch ? '・' + STORY.epoch : '')),
       el('h1', null, STORY.title),
       el('p', { class: 'sub' }, STORY.tagline),
       el('p', { class: 'lead', html: fmt(STORY.lead || '') }),
@@ -552,7 +565,7 @@
           el('p', { html: fmt(c.desc) }),
           rv ? el('div', { class: 'truth', html: fmt('正体：' + c.trueName + '　―　' + c.trueRole) }) : el('div', { class: 'truth', style: { color: 'var(--ink-faint)' } }, '正体：？？？'),
           rv ? el('p', { html: fmt(c.trueDesc) }) : null,
-          c.inherit ? el('p', { class: 'inherit', html: fmt('受け継いだもの：' + c.inherit) }) : null)));
+          c.inherit ? el('p', { class: 'inherit', html: fmt((STORY.inheritLabel || '受け継いだもの') + '：' + c.inherit) }) : null)));
     });
     openOverlay(box);
   }

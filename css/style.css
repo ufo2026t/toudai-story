@@ -448,7 +448,7 @@ input[type=range] { width: min(420px, 100%); accent-color: var(--amber); }
 .next-work { color: var(--amber); }
 .file .body p.inherit { color: var(--ink-faint); font-size: 13px; border-top: 1px dotted var(--line); padding-top: 4px; margin-top: 6px; }
 
-/* ---------- 宇宙のテーマ（第二部） ---------- */
+/* ---------- 宇宙のテーマ（第三部『星還りの灯』） ---------- */
 body.theme-space #sky .rain {
   inset: 0; opacity: var(--star-op); animation: twinkle 6s ease-in-out infinite alternate;
   background-image:
@@ -484,7 +484,7 @@ html[data-style="tasogare"] body.theme-space {
 @keyframes twinkle { from { opacity: .55; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { body.theme-space #sky .rain { animation: none; } }
 
-/* ---------- 第二部のミニゲーム ---------- */
+/* ---------- 第三部『星還りの灯』のミニゲーム ---------- */
 .star-sky, .dock-view, .wave-view { width: 100%; max-width: 480px; height: auto; display: block; border-radius: 6px; }
 .star-node { cursor: pointer; }
 .star-node .core { filter: drop-shadow(0 0 4px #fff3c4); transition: r .15s; }
@@ -674,4 +674,74 @@ html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="
   .style-picker.compact { grid-template-columns: repeat(3, 1fr); }
   .style-picker { grid-template-columns: 1fr; }
   .style-picker.compact .style-card small { font-size: 10px; }
+}
+
+/* ---------- 過去・現在・未来（作品一覧） ---------- */
+.epoch-line { list-style: none; display: flex; margin: 22px auto 0; padding: 0; max-width: 640px; }
+.epoch-line li { flex: 1; position: relative; text-align: center; padding-top: 20px; font-family: var(--serif); }
+.epoch-line li::before { content: ""; position: absolute; top: 7px; left: 0; right: 0; height: 1px; background: var(--amber-deep); opacity: .6; }
+.epoch-line li:first-child::before { left: 50%; }
+.epoch-line li:last-child::before { right: 50%; }
+.epoch-line li::after { content: ""; position: absolute; top: 3px; left: 50%; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 8px var(--glow); }
+.epoch-line b { display: block; color: var(--amber); letter-spacing: .3em; text-indent: .3em; font-weight: 600; }
+.epoch-line small { display: block; font-size: 11px; color: var(--ink-faint); font-family: var(--sans); }
+.epoch-line span { display: block; font-size: 13px; color: var(--ink-dim); }
+.work-epoch { display: inline-block; margin-right: 10px; padding: 0 8px; border: 1px solid currentColor; border-radius: 3px; letter-spacing: .2em; }
+
+/* ---------- 明治のテーマ（第一部『灯の生まれる夜』） ---------- */
+.work.past { border-left-color: #d98a4e; background: var(--work-past-bg, linear-gradient(135deg, rgba(54, 38, 26, .92), rgba(22, 16, 11, .9))); }
+.work.past .work-part, .work.past .work-tag { color: #f0b07a; }
+html[data-style="washi"] { --work-past-bg: linear-gradient(135deg, #fbf5e9, #f0e5cf); }
+html[data-style="washi"] .work.past .work-part, html[data-style="washi"] .work.past .work-tag { color: #8a4a1e; }
+html[data-style="sumi"] { --work-past-bg: #0b0b0b; }
+html[data-style="yotomoshi"] body.theme-past {
+  --body-bg: radial-gradient(ellipse at 25% -10%, #3b2c1e 0%, #18120d 48%, #080605 100%);
+  --topbar-bg: linear-gradient(to bottom, rgba(14, 10, 7, .95), rgba(14, 10, 7, .75));
+  --beam: rgba(255, 178, 102, .10);
+  --line: rgba(230, 190, 140, .2);
+  --panel: rgba(36, 26, 18, .9);
+  --panel2: rgba(48, 34, 22, .92);
+  --page-bg: rgba(32, 23, 16, .92);
+  --page-deep: rgba(14, 10, 7, .94);
+  --sheet-bg: #1e1610;
+  --gate-bg: rgba(18, 12, 8, .72);
+}
+html[data-style="washi"] body.theme-past {
+  --body-bg: linear-gradient(#f3ecdc, #e6dcc6);
+  --topbar-bg: rgba(243, 236, 220, .95);
+  --page-bg: #fffaf0;
+  --page-deep: #f8f0e0;
+}
+html[data-style="shinkai"] body.theme-past { --beam: rgba(255, 200, 150, .07); }
+
+/* ---------- 第一部『灯の生まれる夜』のミニゲーム ---------- */
+.rings-view { width: 100%; max-width: 320px; height: auto; display: block; }
+.rings-view .ring { cursor: pointer; transition: transform .28s ease; }
+.rings-view .ring .ring-win { stroke: #8a6a3a; transition: stroke .2s; }
+.rings-view .ring.aligned .ring-win { stroke: #ffd27a; filter: drop-shadow(0 0 4px #ffd27a); }
+.rings-view .ring:hover > circle:first-child { stroke: #3a4f68; }
+.rings-view .rings-lamp { filter: drop-shadow(0 0 10px #ffcf7a); }
+.rings-view .rings-beam { transition: opacity .5s; }
+
+.himitsu { display: grid; grid-template-areas: "lid back ." "west box east" ". front bottom"; grid-template-columns: repeat(3, minmax(88px, 128px)); gap: 8px; align-items: center; }
+.himitsu-box { display: grid; place-items: center; }
+.himitsu-box svg { width: 120px; height: auto; display: block; }
+.himitsu-box .lid { transition: transform .9s ease; transform-box: fill-box; transform-origin: center; }
+.himitsu-box.open .lid { transform: translate(10px, -14px) rotate(-8deg); }
+.himitsu-panel {
+  padding: 10px 6px; border-radius: 4px; cursor: pointer; font-family: var(--serif); font-size: 14px; font-weight: 700; color: #241406; text-shadow: 0 0 3px #f3dfb8, 0 0 1px #f3dfb8;
+  border: 1px solid #6a4420; background: repeating-linear-gradient(45deg, #c89a62 0 6px, #b5824a 6px 12px);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .2); transition: transform .3s, filter .3s;
+}
+.himitsu-panel:hover { filter: brightness(1.08); }
+.himitsu-panel.moved { transform: translateY(4px); filter: brightness(.7) saturate(.6); box-shadow: inset 0 3px 6px rgba(0, 0, 0, .4); }
+
+.leading-view { width: 100%; max-width: 480px; height: auto; display: block; border-radius: 6px; }
+.leading-ctl { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; width: min(440px, 100%); font-size: 12px; color: var(--ink-dim); }
+.leading-ctl input[type=range] { width: 100%; }
+.leading-mark { min-height: 1.6em; color: var(--amber); font-family: var(--serif); }
+@media (max-width: 600px) {
+  .himitsu { grid-template-columns: repeat(3, minmax(70px, 1fr)); }
+  .himitsu-panel { font-size: 12px; padding: 8px 4px; }
+  .epoch-line span { font-size: 11px; }
 }

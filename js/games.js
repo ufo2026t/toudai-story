@@ -95,27 +95,28 @@
   /* ---------- ピント合わせ：写真機 ---------- */
   Games.focus = function (host, cfg, api) {
     const target = cfg.target != null ? cfg.target : 63, tol = cfg.tol || 4;
-    const frame = el('div', { class: 'focus-frame', html: cfg.svg }, el('div', { class: 'reticle' }));
+    const frame = el('div', { class: 'focus-frame', html: cfg.svg }, cfg.reticle === false ? null : el('div', { class: 'reticle' }));
     const svg = frame.querySelector('svg');
-    const range = el('input', { type: 'range', min: 0, max: 100, value: cfg.start || 8, 'aria-label': 'ピントリング' });
+    const range = el('input', { type: 'range', min: 0, max: 100, value: cfg.start || 8, 'aria-label': cfg.ringLabel || 'ピントリング' });
     const fb = el('div', { class: 'feedback' });
     const blur = () => { svg.style.filter = `blur(${(Math.abs(range.value - target) * 0.22).toFixed(2)}px)`; };
     range.addEventListener('input', blur);
     const sk = skipper(host, api, 90);
-    const shot = el('button', { class: 'btn', type: 'button' }, 'シャッターを切る');
+    const shot = el('button', { class: 'btn', type: 'button' }, cfg.button || 'シャッターを切る');
     shot.addEventListener('click', () => {
       if (Math.abs(range.value - target) <= tol) {
-        frame.classList.add('flash'); Sound.tone(1200, 0.05, 'square', 0.05);
+        if (cfg.flash !== false) frame.classList.add('flash');
+        Sound.tone(1200, 0.05, 'square', 0.05);
         range.disabled = true; shot.disabled = true; sk.stop();
-        fb.className = 'feedback good'; fb.textContent = 'カシャッ。――写った。';
+        fb.className = 'feedback good'; fb.textContent = cfg.okText || 'カシャッ。――写った。';
         setTimeout(() => api.done(), 900);
       } else {
         Sound.bad(); sk.fail();
-        fb.className = 'feedback bad'; fb.textContent = 'まだぼやけている。ピントリングを回して、文字がくっきり読めるところを探そう。';
+        fb.className = 'feedback bad'; fb.textContent = cfg.badText || 'まだぼやけている。ピントリングを回して、文字がくっきり読めるところを探そう。';
       }
     });
     host.appendChild(el('div', { class: 'game-area' }, frame,
-      el('div', { class: 'game-note' }, 'ピントリング（つまみ）を動かして'), range, shot, fb));
+      el('div', { class: 'game-note' }, cfg.note || 'ピントリング（つまみ）を動かして'), range, shot, fb));
     blur();
     return () => sk.stop();
   };
