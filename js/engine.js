@@ -299,10 +299,11 @@
 
   /* ---------- 作品一覧（シリーズ） ---------- */
   const THEMES = ['space', 'past'];
-  function setTheme() {
+  function applyTheme(theme) {
     const inLib = document.body.classList.contains('in-library');
-    THEMES.forEach(t => document.body.classList.toggle('theme-' + t, !inLib && !!window.STORY && STORY.theme === t));
+    THEMES.forEach(t => document.body.classList.toggle('theme-' + t, !inLib && theme === t));
   }
+  function setTheme() { applyTheme(window.STORY && STORY.theme); }
   /* 作品一覧は時代の古い順（過去・現在・未来）に並べる */
   function byEpoch() {
     return SERIES.order.slice().sort((a, b) => (SERIES.stories[a].epochOrder || 0) - (SERIES.stories[b].epochOrder || 0));
@@ -313,7 +314,7 @@
     SERIES.use(id);
     State.settings.lastStory = id; State.saveSettings();
     buildIndex(); updateBadge();
-    document.body.classList.remove('in-library');
+    document.body.classList.remove('in-library', 'in-extra');
     setTheme(); setBrand(STORY.title);
   }
 
@@ -326,7 +327,7 @@
 
   function library() {
     clearApp();
-    document.body.classList.remove('beam-off', 'calm', ...THEMES.map(t => 'theme-' + t));
+    document.body.classList.remove('beam-off', 'calm', 'in-extra', ...THEMES.map(t => 'theme-' + t));
     document.body.classList.add('in-library');
     setBrand(SERIES.title);
     document.getElementById('note-count').textContent = '';
@@ -363,7 +364,110 @@
         el('p', null, '読む気分に合わせて、表示スタイルを選べます。書体・行間・文章の現れ方・背景の演出は、右上の「設定」から。'),
         stylePicker(true)),
       list,
+      extraEntry(),
       el('p', { class: 'library-foot' }, 'この作品は外部と一切通信しません。進行状況は作品ごとに、このブラウザの中だけに保存されます。'));
+  }
+
+  /* ---------- 番外編 ----------
+     作品一覧では三つの作品のあとに置く。どれかひとつを読み終えるまでは鍵がかかったまま見せ、
+     中の話も、対応する作品を読み終えたものだけを開く（未読の作品の結末に触れないため）。 */
+  const epKey = ep => 'ep:' + ep.id;
+  const epOpen = ep => (ep.requires || []).every(id => SERIES.finished(id));
+  function epLockText(ep) {
+    const need = (ep.requires || []).filter(id => !SERIES.finished(id));
+    if (ep.requires.length === SERIES.order.length) return '三つの作品をすべて読み終えると開きます';
+    return need.map(id => '『' + SERIES.stories[id].title + '』').join('') + 'を読み終えると開きます';
+  }
+
+  function extraEntry() {
+    const x = SERIES.extra;
+    if (!x) return null;
+    const done = SERIES.order.filter(id => SERIES.finished(id)).length;
+    const open = done > 0;
+    const d = State.peek(x.id);
+    const readN = x.episodes.filter(ep => d.read[epKey(ep)]).length;
+    const openN = x.episodes.filter(epOpen).length;
+    return el('section', { class: 'extra-entry' + (open ? ' open' : ' locked') },
+      el('div', { class: 'extra-divider' }, '番外編'),
+      el('article', { class: 'work extra' },
+        el('div', { class: 'work-cover', html: x.cover }),
+        el('div', { class: 'work-body' },
+          el('div', { class: 'work-part' }, el('span', { class: 'work-epoch' }, '番外編'), x.era,
+            open && readN === 0 ? el('span', { class: 'extra-new' }, '開きました') : null),
+          el('h2', null, x.title),
+          el('p', { class: 'work-tag' }, x.tagline),
+          el('p', { class: 'work-blurb', html: fmt(x.blurb) }),
+          open
+            ? el('div', { class: 'progress-line' },
+              el('span', null, `開いている話 ${openN} / ${x.episodes.length}　読了 ${readN}`),
+              el('div', { class: 'bar' }, el('i', { style: { width: (readN / x.episodes.length * 100) + '%' } })))
+            : el('p', { class: 'lock-note' }, `🔒 三つの作品のうち、どれかひとつを最後まで読むと開きます（読み終えた作品：${done} / ${SERIES.order.length}）`),
+          open ? el('div', { class: 'btn-row', style: { justifyContent: 'flex-start' } },
+            el('button', { class: 'btn', type: 'button', onclick: openExtra }, readN ? 'つづきを読む' : '番外編を読む')) : null)));
+  }
+
+  function openExtra() {
+    SERIES.useExtra();
+    buildIndex();
+    document.getElementById('note-count').textContent = '';
+    document.body.classList.remove('in-library');
+    document.body.classList.add('in-extra');
+    setBrand(SERIES.extra.title);
+    extraHub();
+  }
+
+  function extraHub() {
+    clearApp();
+    document.body.classList.remove('beam-off', 'calm');
+    applyTheme(null);
+    const x = SERIES.extra;
+    const list = el('section', { class: 'ep-list' });
+    x.episodes.forEach(ep => {
+      const open = epOpen(ep), read = !!State.d.read[epKey(ep)];
+      const card = el('button', { class: 'ep-card' + (open ? '' : ' locked') + (read ? ' read' : ''), type: 'button', style: '--c:' + (ep.color || 'var(--amber)') },
+        el('div', { class: 'ep-no' }, ep.no),
+        el('div', { class: 'meta' },
+          el('div', { class: 'ep-era' }, ep.era),
+          el('div', { class: 'name' }, open ? ep.title : '？？？'),
+          el('div', { class: 'role' }, open ? ep.sub : epLockText(ep))),
+        el('span', { class: 'state' + (read ? ' done' : open ? ' new' : '') }, read ? '読了' : open ? '未読' : '🔒'));
+      card.addEventListener('click', () => open ? extraReader(ep) : U.toast(epLockText(ep)));
+      list.appendChild(card);
+    });
+    app.append(
+      el('section', { class: 'title-screen extra-head' },
+        el('div', { html: x.cover }),
+        el('div', { class: 'title-part' }, SERIES.title + '　番外編'),
+        el('h1', null, x.title),
+        el('p', { class: 'sub' }, x.tagline),
+        el('p', { class: 'lead', html: fmt(x.lead) })),
+      el('p', { class: 'ep-note' }, x.note),
+      list,
+      el('div', { class: 'btn-row' }, el('button', { class: 'btn ghost', type: 'button', onclick: library }, '作品一覧へ')));
+  }
+
+  function extraReader(ep) {
+    clearApp();
+    document.body.classList.remove('beam-off', 'calm');
+    applyTheme(ep.theme || null);
+    const color = ep.color || 'var(--amber)';
+    const wrap = el('article', { class: 'reader', style: '--c:' + color });
+    const page = el('div', { class: 'page' });
+    wrap.append(
+      el('div', { class: 'btn-row', style: { justifyContent: 'flex-start', margin: '0 0 12px' } },
+        el('button', { class: 'btn ghost small', type: 'button', onclick: extraHub }, '← 番外編の目次へ')),
+      chapterHead(null, '番外編　' + ep.no, ep.title, ep.era + '　' + ep.time, color), page);
+    wrap.querySelector('.crest').textContent = ep.crest || '灯';
+    app.appendChild(wrap);
+    const ctx = makeCtx(color, !!State.d.read[epKey(ep)], page);
+    renderBlocks(ep.blocks, page, ctx).then(() => {
+      if (ctx.token !== viewToken) return;
+      State.d.read[epKey(ep)] = true; State.save();
+      if (page.querySelector('.credits')) return;
+      put(page, el('div', { class: 'chapter-end' },
+        el('div', { class: 'fin' }, '― 了 ―'),
+        el('button', { class: 'btn', type: 'button', onclick: extraHub }, '番外編の目次へ')), ctx);
+    });
   }
 
   function title() {
@@ -541,13 +645,26 @@
   }
 
   function credits() {
+    const x = SERIES.extra, inExtra = STORY === x;
+    if (inExtra) {
+      return el('div', { class: 'credits' },
+        el('div', { class: 'end' }, '完'),
+        el('p', { html: fmt('三つの時代の灯を、最後まで見届けてくださって、ありがとうございました。') }),
+        el('div', { class: 'btn-row' },
+          el('button', { class: 'btn', type: 'button', onclick: extraHub }, '番外編の目次へ'),
+          el('button', { class: 'btn ghost', type: 'button', onclick: library }, '作品一覧へ')));
+    }
+    /* 終章の最後まで来たら読了。番外編の扉を、この画面からすぐ開けるようにする */
+    State.d.finale = true; State.save();
     const nextId = SERIES.next(STORY.id), next = nextId && SERIES.stories[nextId];
     return el('div', { class: 'credits' },
       el('div', { class: 'end' }, '完'),
       el('p', { html: fmt('最後まで読んでくださって、ありがとうございました。') }),
       next ? el('p', { class: 'next-work', html: fmt(next.part + '『' + next.title + '』――' + (next.era || '')) }) : null,
+      x ? el('p', { class: 'next-work', html: fmt('番外編『' + x.title + '』に、この作品のその後の話が開きました。') }) : null,
       el('div', { class: 'btn-row' },
         next ? el('button', { class: 'btn', type: 'button', onclick: () => { openStory(nextId); title(); } }, '続編を読む') : null,
+        x ? el('button', { class: 'btn', type: 'button', onclick: openExtra }, '番外編へ') : null,
         el('button', { class: 'btn ghost', type: 'button', onclick: showFiles }, '人物ファイルを見る'),
         el('button', { class: 'btn ghost', type: 'button', onclick: library }, '作品一覧へ')));
   }
@@ -668,7 +785,10 @@
         seg([[true, 'あり'], [false, 'なし']], State.settings.sound, set('sound', v => { if (!v) Sound.stopNoise(); }))),
       State.d && !document.body.classList.contains('in-library') ? el('div', { class: 'setting-row' }, el('span', null, '『' + STORY.title + '』の進行状況'),
         el('button', { class: 'btn ghost small', type: 'button', onclick: () => {
-          if (confirm('『' + STORY.title + '』の進行状況（読了・正体・手がかり）をすべて消去しますか？')) { State.reset(); updateBadge(); closeOverlay(); title(); }
+          if (confirm('『' + STORY.title + '』の進行状況（読了・正体・手がかり）をすべて消去しますか？')) {
+            State.reset(); updateBadge(); closeOverlay();
+            if (document.body.classList.contains('in-extra')) extraHub(); else title();
+          }
         } }, '消去する')) : null,
       el('p', { style: { fontSize: '12px', color: 'var(--ink-dim)', marginTop: '16px' } },
         'この作品は外部と一切通信しません（フォントは端末のシステムフォント、効果音は端末内で合成）。進行状況はこのブラウザの localStorage にのみ保存されます。'));
@@ -685,12 +805,15 @@
       fn();
     };
     document.getElementById('btn-home').addEventListener('click', library);
-    document.getElementById('btn-hub').addEventListener('click', inStory(() => { State.d.started = true; State.save(); hub(); }));
+    document.getElementById('btn-hub').addEventListener('click', inStory(() => {
+      if (document.body.classList.contains('in-extra')) { extraHub(); return; }
+      State.d.started = true; State.save(); hub();
+    }));
     document.getElementById('btn-files').addEventListener('click', inStory(showFiles));
     document.getElementById('btn-notes').addEventListener('click', inStory(showNotes));
     document.getElementById('btn-settings').addEventListener('click', showSettings);
     library();
   }
-  window.Engine = { hub, reader, interlude, finale, title, library, openStory, applySettings };
+  window.Engine = { hub, reader, interlude, finale, title, library, openStory, openExtra, extraHub, extraReader, applySettings };
   boot();
 })();

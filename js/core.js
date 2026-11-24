@@ -42,6 +42,20 @@
     next(id) {
       const i = this.order.indexOf(id);
       return i >= 0 ? this.order[i + 1] : undefined;
+    },
+    finished(id) { return !!State.peek(id).finale; },
+    /* 番外編：作品を読み終えるごとに開いていく短い話の集まり。進行状況は id 'ex' で保存する */
+    extra: null,
+    defExtra(meta) {
+      const x = makeStory('ex', Object.assign({ episodes: [] }, meta));
+      x.defEpisode = function (ep) { this.episodes.push(ep); };
+      this.extra = x;
+      return x;
+    },
+    useExtra() {
+      window.STORY = this.extra;
+      State.use(this.extra.id);
+      return this.extra;
     }
   };
 

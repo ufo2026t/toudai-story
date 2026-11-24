@@ -688,6 +688,45 @@ html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="
 .epoch-line span { display: block; font-size: 13px; color: var(--ink-dim); }
 .work-epoch { display: inline-block; margin-right: 10px; padding: 0 8px; border: 1px solid currentColor; border-radius: 3px; letter-spacing: .2em; }
 
+/* ---------- 番外編 ---------- */
+.extra-entry { margin-top: 34px; }
+.extra-divider { display: flex; align-items: center; gap: 16px; margin: 0 0 14px; font-family: var(--serif); color: var(--amber); letter-spacing: .5em; text-indent: .5em; font-size: 14px; }
+.extra-divider::before, .extra-divider::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--amber-deep), transparent); }
+.work.extra { border-left-color: #e8d6a0; background: var(--work-extra-bg, linear-gradient(120deg, rgba(54, 38, 26, .92), rgba(16, 28, 48, .92) 55%, rgba(26, 30, 64, .92))); }
+.extra-entry.locked .work { opacity: .7; }
+.extra-entry.locked .work-cover { filter: grayscale(.85) brightness(.75); }
+.lock-note { font-size: 13px; color: var(--ink-dim); margin: 12px 0 0; }
+.extra-new { display: inline-block; margin-left: 10px; padding: 0 8px; border-radius: 999px; background: var(--amber-deep); color: var(--on-accent); letter-spacing: .1em; }
+html[data-style="washi"] { --work-extra-bg: linear-gradient(120deg, #fbf5e9, #f1f3f8); }
+html[data-style="sumi"] { --work-extra-bg: #0b0b0b; }
+.extra-head { padding-bottom: 2vh; }
+.ep-note { max-width: 640px; margin: 0 auto 18px; text-align: center; font-size: 13px; color: var(--ink-faint); }
+.ep-list { display: grid; gap: 12px; max-width: 720px; margin: 0 auto; }
+.ep-card {
+  --c: var(--amber);
+  position: relative; display: flex; gap: 16px; align-items: center; text-align: left; width: 100%;
+  padding: 16px 18px; border-radius: 6px; cursor: pointer; color: var(--ink); font: inherit;
+  background: linear-gradient(135deg, var(--panel2), var(--panel));
+  border: 1px solid var(--line); border-left: 3px solid var(--c);
+  transition: transform .2s, box-shadow .2s;
+}
+.ep-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0, 0, 0, .35), 0 0 0 1px var(--c); }
+.ep-card.read { opacity: .82; }
+.ep-card.locked { opacity: .5; cursor: not-allowed; border-left-color: var(--line); }
+.ep-card.locked:hover { transform: none; box-shadow: none; }
+.ep-no { flex: none; width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--c); color: var(--c); background: var(--crest-bg); font-family: var(--serif); font-size: 15px; font-weight: 600; }
+.ep-card.locked .ep-no { border-color: var(--line); color: var(--ink-faint); }
+.ep-card .meta { flex: 1; min-width: 0; }
+.ep-era { font-size: 12px; color: var(--c); letter-spacing: .1em; }
+.ep-card.locked .ep-era { color: var(--ink-faint); }
+.ep-card .name { font-family: var(--serif); font-size: 19px; font-weight: 600; }
+.ep-card .role { font-size: 12px; color: var(--ink-dim); margin-top: 2px; }
+.ep-card .state { position: absolute; top: 10px; right: 12px; font-size: 11px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-faint); }
+.ep-card .state.done { color: var(--ok); border-color: rgba(143, 209, 158, .4); }
+.ep-card .state.new { color: var(--amber); border-color: var(--amber-deep); }
+body.in-extra #btn-files, body.in-extra #btn-notes { display: none; }
+html[data-style="washi"] .ep-era, html[data-style="washi"] .ep-no { color: color-mix(in srgb, var(--c, #a8432a) 55%, #1e1a16); }
+
 /* ---------- 明治のテーマ（第一部『灯の生まれる夜』） ---------- */
 .work.past { border-left-color: #d98a4e; background: var(--work-past-bg, linear-gradient(135deg, rgba(54, 38, 26, .92), rgba(22, 16, 11, .9))); }
 .work.past .work-part, .work.past .work-tag { color: #f0b07a; }
